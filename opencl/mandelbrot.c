@@ -67,20 +67,20 @@ generateMandelbrot(
     int width,
     int height)
 {
-    cl_mem buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, 1024*768*3, NULL, NULL);
+    cl_mem buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, width*height*3, NULL, NULL);
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer);
-    //static const int width = 1024;
     clSetKernelArg(kernel, 1, sizeof(width), &width);
-    static const float radius = 2.0f;
-    clSetKernelArg(kernel, 2, sizeof(radius), &radius);
-    clSetKernelArg(kernel, 3, sizeof(maxIterations), &maxIterations);
+    clSetKernelArg(kernel, 2, sizeof(height), &height);
+    static const float radius = RADIUS;
+    clSetKernelArg(kernel, 3, sizeof(radius), &radius);
+    clSetKernelArg(kernel, 4, sizeof(maxIterations), &maxIterations);
 
-    const size_t globalWorkSize[] = {1024, 768, 0, 0};
+    const size_t globalWorkSize[] = {width, height, 0, 0};
     clEnqueueNDRangeKernel(queue, kernel, 2, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 
     unsigned char *image = malloc(height * width * 3);
 
-    clEnqueueReadBuffer(queue, buffer, CL_TRUE, 0, 1024*768*3, image, 0, NULL, NULL);
+    clEnqueueReadBuffer(queue, buffer, CL_TRUE, 0, width*height*3, image, 0, NULL, NULL);
     return image;
 }
 
